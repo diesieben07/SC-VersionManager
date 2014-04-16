@@ -1,3 +1,4 @@
 /pw.txt
 *.htaccess
 *.htpasswd
+private/resources/versions.json

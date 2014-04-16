@@ -10,7 +10,11 @@ class ListVersionsAction extends AbstractAction {
 		}
 		$versionManager = $this->main->getVersionManager();
 		$versions = $versionManager->getVersions();
-		echo json_encode($versions, $pretty ? JSON_PRETTY_PRINT : 0);
+		$flags = JSON_FORCE_OBJECT;
+		if ($pretty) {
+			$flags |= JSON_PRETTY_PRINT;
+		}
+		echo json_encode($versions, $flags);
 	}
 
 	public function isSecret() {

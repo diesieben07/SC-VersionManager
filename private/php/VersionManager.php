@@ -37,9 +37,14 @@ class VersionManager {
 	public function getVersions() {
 		if ($this->versionCache === null) {
 			$this->openFile(false);
-			$json = json_decode($this->versionFile->getContents(), true);
-			if ($json === null) {
-				throw new RuntimeException('versions.json is not valid!');
+			if (!$this->versionFile->exists()) {
+				$json = array();
+			} else {
+				$json = json_decode($this->versionFile->getContents(), true);
+				if ($json === null) {
+					$json = array();
+					$this->dirty = true;
+				}
 			}
 			$this->versionCache = $json;
 		}

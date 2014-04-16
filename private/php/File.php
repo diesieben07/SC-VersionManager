@@ -18,6 +18,10 @@ class File {
 		$this->lockMode = self::LOCK_NONE;
 	}
 	
+	public function exists() {
+		return is_file($this->path);
+	}
+	
 	public function lock($mode) {
 		if ($this->lockMode !== $mode) {
 			if ($mode !== self::LOCK_READ && $mode !== self::LOCK_WRITE && $mode !== self::LOCK_NONE) {
@@ -35,6 +39,10 @@ class File {
 				throw new \Exception('Failed to lock file!');
 			}
 		}
+	}
+	
+	public function unlock() {
+		$this->lock(self::LOCK_NONE);
 	}
 	
 	public function getContents() {
@@ -55,14 +63,6 @@ class File {
 		$this->dirty = true;
 	}
 	
-	private static function writeFail() {
-		throw new \Exception('Failed to write File!');
-	}
-	
-	public function unlock() {
-		$this->lock(self::LOCK_NONE);
-	}
-	
 	public function flushCache() {
 		if ($this->dirty) {
 			$handle = $this->getHandle();
@@ -75,8 +75,15 @@ class File {
 			if (fwrite($handle, $this->contentCache) === false) {
 				self::writeFail();
 			}
+			if (!fflush($handle)) {
+				self::writeFail();
+			}
 			$this->dirty = false;
 		}
+	}
+	
+	private static function writeFail() {
+		throw new \Exception('Failed to write File!');
 	}
 	
 	public function close() {
@@ -91,7 +98,7 @@ class File {
 		}
 	}
 	
-	public function getHandle() {
+	private function getHandle() {
 		if ($this->handle === null) {
 			$handle = fopen($this->path, 'c+');
 			if ($handle === false) {
