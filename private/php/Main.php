@@ -47,7 +47,7 @@ class Main {
 	
 	private function findAction($request) {
 		if (!isset($request['action'])) {
-			return new ErrorAction($this, 'Missing Action!');
+			$this->dieWith('Missing Action!');
 		}
 		$action = $request['action'];
 		switch (strtolower($action)) {
@@ -58,7 +58,7 @@ class Main {
 			case 'list':
 				return new ListVersionsAction($this);
 			default:
-				return new ErrorAction($this, 'Unknown Action: ' . $action);
+				$this->dieWith('Unknown Action: ' . $action);
 		}
 	}
 
