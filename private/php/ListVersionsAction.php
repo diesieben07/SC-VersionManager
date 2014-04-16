@@ -3,11 +3,8 @@ namespace de\take_weiland\sc_versions;
 
 class ListVersionsAction extends AbstractAction {
 
-	public function perform(array $request) {
-		$pretty = false;
-		if (isset($request['pretty']) && strtolower($request['pretty']) === 'true') {
-			$pretty = true;
-		}
+	public function perform() {
+		$pretty = $this->getArg('pretty', 'false') === 'true';
 		$versionManager = $this->main->getVersionManager();
 		$versions = $versionManager->getVersions();
 		$flags = JSON_FORCE_OBJECT;

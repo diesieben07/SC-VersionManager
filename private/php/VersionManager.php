@@ -10,6 +10,7 @@ class VersionManager {
 	
 	public function __construct(Main $main) {
 		$this->main = $main;
+		register_shutdown_function(array($this, 'close'));
 	}
 	
 	public function makeWritable() {
@@ -60,15 +61,24 @@ class VersionManager {
 		}
 	}
 	
-	public function setVersionInfo($version, $info) {
+	public function createVersion($version, $info) {
 		$this->makeWritable();
 		if (!$this->versionValid($version)) {
-			throw new InvalidArgumentException('Invalid version!');
+			throw new \InvalidArgumentException('Invalid version!');
 		}
 		if ($this->versionExists($version)) {
-			throw new InvalidArgumentException('Duplicate Version!');
+			throw new \InvalidArgumentException('Duplicate Version!');
 		}
 		$this->versionCache[$version] = $info;
+		$this->dirty = true;
+	}
+	
+	public function deleteVersion($version) {
+		$this->makeWritable();
+		if (!$this->versionExists($version)) {
+			throw new \InvalidArgumentException('Invalid version!');
+		}
+		unset($this->versionCache[$version]);
 		$this->dirty = true;
 	}
 	

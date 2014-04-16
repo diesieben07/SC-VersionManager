@@ -22,43 +22,30 @@ class Main {
 	public function parseRequest(array $request, $secret) {
 		$action = $this->findAction($request);
 		if ($action->isSecret() && !$secret) {
-			$this->dieWith('Requested secret action without password!');
+			dieWith('Requested secret action without password!');
 		}
 		ob_start();
-		$action->perform($request);
+		$action->perform();
 		header('content-type: ' . $action->getMimeType());
 		echo ob_get_clean();
-		$this->stop();
-	}
-	
-	public function dieWith($msg) {
-		while (ob_get_level() > 0) {
-			ob_end_clean();
-		}
-		header('content-type: text/plain');
-		echo 'Error: ' . htmlspecialchars($msg);
-		$this->stop();
-	}
-	
-	private function stop() {
-		$this->versionManager->close();
-		exit;
 	}
 	
 	private function findAction($request) {
 		if (!isset($request['action'])) {
-			$this->dieWith('Missing Action!');
+			dieWith('Missing Action!');
 		}
 		$action = $request['action'];
 		switch (strtolower($action)) {
 			case 'request':
-				return new RequestVersionAction($this);
+				return new RequestVersionAction($this, $request);
 			case 'create':
-				return new NewVersionAction($this);
+				return new NewVersionAction($this, $request);
 			case 'list':
-				return new ListVersionsAction($this);
+				return new ListVersionsAction($this, $request);
+			case 'delete':
+				return new DeleteVersionAction($this, $request);
 			default:
-				$this->dieWith('Unknown Action: ' . $action);
+				dieWith('Unknown Action: ' . $action);
 		}
 	}
 
