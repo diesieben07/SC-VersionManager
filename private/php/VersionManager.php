@@ -10,7 +10,13 @@ class VersionManager {
 	
 	public function __construct(Main $main) {
 		$this->main = $main;
-		register_shutdown_function(array($this, 'close'));
+		register_shutdown_function(function() {
+			try {
+				$this->close();
+			} catch (\Exception $e) {
+				echo 'Failed to shutdown VersionManager!';
+			}
+		});
 	}
 	
 	public function makeWritable() {
