@@ -8,7 +8,7 @@ class Main {
 	
 	public function __construct($resourcesDir) {
 		$this->resourcesDir = realpath($resourcesDir);
-		$this->versionManager = new VersionManager($this);
+		//$this->versionManager = new JSONVersionManager($this);
 	}
 	
 	public function getResourceDir() {
@@ -36,14 +36,8 @@ class Main {
 		}
 		$action = $request['action'];
 		switch (strtolower($action)) {
-			case 'request':
-				return new RequestVersionAction($this, $request);
-			case 'create':
-				return new NewVersionAction($this, $request);
-			case 'list':
-				return new ListVersionsAction($this, $request);
-			case 'delete':
-				return new DeleteVersionAction($this, $request);
+			case 'maven':
+				return new MavenAction($this, $request);
 			default:
 				dieWith('Unknown Action: ' . $action);
 		}
