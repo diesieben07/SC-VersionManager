@@ -9,6 +9,7 @@ class Main {
 	private $resourcesDir;
 	
 	public function __construct($resourcesDir) {
+		mkdir($resourcesDir, 0777, true);
 		$this->resourcesDir = realpath($resourcesDir);
 	}
 	

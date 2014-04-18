@@ -106,6 +106,7 @@ class File {
 	private function getHandle() {
 		if ($this->handle === null) {
 			$handle = fopen($this->path, 'c+');
+			
 			if ($handle === false) {
 				throw new \Exception('Failed to open file!');
 			}
