@@ -30,7 +30,7 @@ class Main {
 	
 	private function findAction($request) {
 		if (!isset($request['action'])) {
-			dieWith('Missing Action!');
+			$request['action'] = '';
 		}
 		$action = $request['action'];
 		switch (strtolower($action)) {

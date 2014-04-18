@@ -1,4 +1,4 @@
 /pw.txt
 *.htaccess
 *.htpasswd
-private/resources/versions.json
+private/resources/floodCheck.json
