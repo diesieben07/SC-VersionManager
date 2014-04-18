@@ -38,6 +38,12 @@ abstract class VersionDataAction extends AbstractAction {
 	}
 
 	protected abstract function createVersionManager();
-
-
+	
+	public function getMimeType() {
+		if ($this->getArg('version', null) !== null && $this->getArg('param', null) !== null) {
+			return 'text/plain';
+		} else {
+			return 'application/json';
+		}
+	}
 }
