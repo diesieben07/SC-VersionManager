@@ -5,9 +5,9 @@ class MavenVersionManager extends AbstractVersionManager {
 
 	private $artifact;
 	private $artifactBaseURL;
-	private $patchNotesURL;
+	private $additionalInfoURL;
 
-	public function __construct(Main $main, $repo, $group, $artifact, $patchNotesURL) {
+	public function __construct(Main $main, $repo, $group, $artifact, $additionalInfoURL) {
 		if (!self::validateGroup($group)) {
 			dieWith('Invalid GroupID \'' . $group . '\'');
 		}
@@ -22,10 +22,10 @@ class MavenVersionManager extends AbstractVersionManager {
 		$url .= '/maven-metadata.xml';
 		parent::__construct($main, $url);
 		$this->artifact = $artifact;
-		if ($patchNotesURL !== null && !parent::urlValid($patchNotesURL)) {
-			dieWith('Invalid patchNotesURL!');
+		if ($additionalInfoURL !== null && !parent::urlValid($additionalInfoURL)) {
+			dieWith('Invalid additionalInfoURL!');
 		}
-		$this->patchNotesURL = $patchNotesURL;
+		$this->additionalInfoURL = $additionalInfoURL;
 	}
 	
 	protected function parse($contents) {
@@ -46,22 +46,47 @@ class MavenVersionManager extends AbstractVersionManager {
 	
 	private function extractVersionInfo(\SimpleXMLElement $node) {
 		$version = (string) $node;
+		$lazyInfo = $this->makeLazyInfo($version);
 		return array(
 			'version' => $version,
 			'url' => $this->downloadURL($version),
-			'patchNotes' => $this->makePatchNotes($version)
+			'patchNotes' => self::lazyJsonAccess($lazyInfo, 'patchNotes'),
+			'dependencies' => self::lazyJsonAccess($lazyInfo, 'dependencies')
 		);
 	}
 	
-	private function makePatchNotes($version) {
-		if ($this->patchNotesURL === null) {
+	private static function lazyJsonAccess(LazyJson $json, $key) {
+		$func = function() use ($json, $key) {
+			$decoded = $json->decode();
+			if (isset($decoded[$key])) {
+				return $decoded[$key];
+			} else {
+				return '';
+			}
+		};
+		return new LazyString($func);
+	}
+	
+	private function makeLazyInfo($version) {
+		static $cache = array();
+		if ($this->additionalInfoURL === null) {
 			return '';
 		} else {
-			$url = sprintf($this->patchNotesURL, urlencode($version));
+			$url = sprintf($this->additionalInfoURL, urlencode($version));
 			if (!parent::urlValid($url)) {
-				dieWith('Invalid patchNotesURL!');
+				dieWith('Invalid additionalInfoURL!');
 			}
-			return LazyString::create($url);
+			if (!isset($cache[$url])) {
+				$json = new LazyString(function() use ($url) {
+					$result = @file_get_contents($url, false, null, -1, 512);
+					if ($result === false) {
+						return '';
+					}
+					return $result;
+				});
+				$cache[$url] = new LazyJson($json);
+			}
+			return $cache[$url];
 		}
 	}
 	
