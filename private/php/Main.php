@@ -9,7 +9,9 @@ class Main {
 	private $resourcesDir;
 	
 	public function __construct($resourcesDir) {
-		mkdir($resourcesDir, 0777, true);
+		if (!is_dir($resourcesDir)) {
+			mkdir($resourcesDir, 0777, true);
+		}
 		$this->resourcesDir = realpath($resourcesDir);
 	}
 	
@@ -37,6 +39,8 @@ class Main {
 		switch (strtolower($action)) {
 			case 'maven':
 				return new MavenAction($this, $request);
+			case 'json':
+				return new JSONAction($this, $request);
 			default:
 				return new HelpAction($this, $request);
 		}

@@ -50,16 +50,20 @@ class MavenVersionManager extends AbstractVersionManager {
 		return array(
 			'version' => $version,
 			'url' => $this->downloadURL($version),
-			'patchNotes' => self::lazyJsonAccess($lazyInfo, 'patchNotes'),
-			'dependencies' => self::lazyJsonAccess($lazyInfo, 'dependencies')
+			'patchNotes' => self::lazyJsonAccess($lazyInfo, $version, 'patchNotes'),
+			'dependencies' => self::lazyJsonAccess($lazyInfo, $version, 'dependencies')
 		);
 	}
 	
-	private static function lazyJsonAccess(LazyJson $json, $key) {
-		$func = function() use ($json, $key) {
+	private static function lazyJsonAccess(LazyJson $json, $version, $key) {
+		$func = function() use ($json, $version, $key) {
 			$decoded = $json->decode();
-			if (isset($decoded[$key])) {
-				return $decoded[$key];
+			if (!isset($decoded[$version])) {
+				return '';
+			}
+			$versionData = $decoded[$version];
+			if (isset($versionData[$key])) {
+				return $versionData[$key];
 			} else {
 				return '';
 			}
