@@ -16,6 +16,11 @@ class File {
 	public function __construct($path) {
 		$this->path = $path;
 		$this->lockMode = self::LOCK_NONE;
+		register_shutdown_function(function() {
+			try {
+				$this->close();
+			} catch (\Exception $e) { }
+		});
 	}
 	
 	public function exists() {

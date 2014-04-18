@@ -18,7 +18,7 @@ function startup($secret) {
 	});
 
 	$main = new Main($private . '/resources/');
-	$main->parseRequest($_GET, $secret);
+	$main->parseRequest($_GET, $_SERVER, $secret);
 }
 
 function startsWith($haystack, $needle) {
