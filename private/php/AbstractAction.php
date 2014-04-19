@@ -20,6 +20,7 @@ abstract class AbstractAction implements Action {
 	}
 	
 	protected function requireArg($arg) {
+		$arg = strtolower($arg);
 		if (!isset($this->args[$arg])) {
 			dieWith('Missing argument \'' . $arg . '\'');
 		} else {
@@ -28,6 +29,7 @@ abstract class AbstractAction implements Action {
 	}
 	
 	protected function getArg($arg, $default) {
+		$arg = strtolower($arg);
 		return isset($this->args[$arg]) ? $this->args[$arg] : $default;
 	}
 

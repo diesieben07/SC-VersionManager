@@ -20,6 +20,7 @@ class Main {
 	}
 
 	public function parseRequest(array $request, array $env, $secret) {
+		$request = array_change_key_case($request, CASE_LOWER);
 		$this->checkFlood($env);
 		$action = $this->findAction($request);
 		if ($action->isSecret() && !$secret) {
