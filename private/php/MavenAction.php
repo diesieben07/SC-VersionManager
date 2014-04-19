@@ -7,7 +7,7 @@ class MavenAction extends VersionDataAction {
 		$repo = $this->requireArg('repo');
 		$group = $this->requireArg('group');
 		$artifact = $this->requireArg('artifact');
-		$additionalInfoURL = $this->getArg('additionalInfoURL', null);
+		$additionalInfoURL = $this->requireArg('additionalInfoURL');
 		
 		return new MavenVersionManager($this->main, $repo, $group, $artifact, $additionalInfoURL);
 	}

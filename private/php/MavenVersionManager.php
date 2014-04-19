@@ -22,7 +22,7 @@ class MavenVersionManager extends AbstractVersionManager {
 		$url .= '/maven-metadata.xml';
 		parent::__construct($main, $url);
 		$this->artifact = $artifact;
-		if ($additionalInfoURL !== null && !parent::urlValid($additionalInfoURL)) {
+		if (!parent::urlValid($additionalInfoURL)) {
 			dieWith('Invalid additionalInfoURL!');
 		}
 		$this->additionalInfoURL = $additionalInfoURL;
@@ -73,25 +73,21 @@ class MavenVersionManager extends AbstractVersionManager {
 	
 	private function makeLazyInfo($version) {
 		static $cache = array();
-		if ($this->additionalInfoURL === null) {
-			return '';
-		} else {
-			$url = sprintf($this->additionalInfoURL, urlencode($version));
-			if (!parent::urlValid($url)) {
-				dieWith('Invalid additionalInfoURL!');
-			}
-			if (!isset($cache[$url])) {
-				$json = new LazyString(function() use ($url) {
-					$result = @file_get_contents($url, false, null, -1, 512);
-					if ($result === false) {
-						return '';
-					}
-					return $result;
-				});
-				$cache[$url] = new LazyJson($json);
-			}
-			return $cache[$url];
+		$url = sprintf($this->additionalInfoURL, urlencode($version));
+		if (!parent::urlValid($url)) {
+			dieWith('Invalid additionalInfoURL!');
 		}
+		if (!isset($cache[$url])) {
+			$json = new LazyString(function() use ($url) {
+				$result = @file_get_contents($url, false, null, -1, 512);
+				if ($result === false) {
+					return '';
+				}
+				return $result;
+			});
+			$cache[$url] = new LazyJson($json);
+		}
+		return $cache[$url];
 	}
 	
 	private function downloadURL($version) {
